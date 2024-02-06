@@ -19,7 +19,8 @@ class MainActivity : AppCompatActivity() {
             content = "Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
             published = "21 мая в 18:36",
             likes = 9999,
-            shares = 999999
+            shares = 999999,
+            views = 5
         )
 
         with(binding) {
@@ -57,12 +58,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun Int.format() : String {
-        if(this<1_000) return this.toString()
-        if(this<1_100) return "1K"
-        if(this<10_000) return "%2.1fK".format((this.toBigDecimal().divide(BigDecimal(1000), 1, RoundingMode.DOWN).toDouble()))
-        if(this<1_000_000) return "%dK".format(this/1000)
-        if(this<1_000_000_000) return "%3.1fM".format((this.toBigDecimal().divide(BigDecimal(1_000_000), 1, RoundingMode.DOWN).toDouble()))
+    fun Int.format(): String {
+        if (this < 1_000) return this.toString()
+        if (this < 1_100) return "1K"
+        if (this < 10_000) return "%2.1fK".format(
+            (this.toBigDecimal().divide(BigDecimal(1000), 1, RoundingMode.DOWN).toDouble())
+        )
+        if (this < 1_000_000) return "%dK".format(this / 1000)
+        if (this < 1_000_000_000) return "%3.1fM".format(
+            (this.toBigDecimal().divide(BigDecimal(1_000_000), 1, RoundingMode.DOWN).toDouble())
+        )
         return "###" // Number too big!
     }
 
