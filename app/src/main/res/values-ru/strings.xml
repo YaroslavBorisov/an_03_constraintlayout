@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">NMedia</string>
+    <string name="app_name">НМедиа</string>
     <string name="hello">Привет, Мир!</string>
     <string name="description_post_author_avatar">Аватар автора поста</string>
     <string name="description_post_menu">Меню поста</string>
+    <string name="menu_remove">Удалить</string>
+    <string name="post_text">Введите текст поста…</string>
+    <string name="error_empty_content">Контент не может быть пустым</string>
+    <string name="menu_edit">Изменить</string>
+    <string name="common_desciption">Общее описание</string>
+    <string name="edit_caption">Изменить пост</string>
+    <string name="descr_views" >Просмотры</string>
+    <string name="descr_like" >Лайкнуть</string>
+    <string name="descr_share" >Поделиться</string>
 </resources>
