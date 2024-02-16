@@ -81,7 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/common_spacing"
         android:text="@string/edit_caption"
-        android:textColor="#03A9F4"
+        android:textColor="@color/design_default_color_primary"
         app:layout_constraintStart_toEndOf="@id/pen"
         app:layout_constraintTop_toBottomOf="@id/barrier_top2" />
 

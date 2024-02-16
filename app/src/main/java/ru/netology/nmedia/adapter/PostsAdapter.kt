@@ -44,13 +44,12 @@ class PostViewHolder(
             published.text = post.published
 
             content.text = post.content
-            likesCount.text = post.likes.format()
-            sharesCount.text = post.shares.format()
+
+            like.text = post.likes.format()
+            share.text = post.shares.format()
             viewsCount.text = post.views.format()
-            like.setImageResource(if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_like_24)
-//            if (post.likedByMe) {
-//                like.setImageResource(R.drawable.ic_liked_24)
-//            }
+
+            like.isChecked = post.likedByMe
 
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
@@ -72,17 +71,13 @@ class PostViewHolder(
                                 onInteractionListener.onEdit(post)
                                 true
                             }
-
                             else -> false
                         }
-
                     }
                 }.show()
             }
         }
-
     }
-
 }
 
 fun Int.format(): String {
