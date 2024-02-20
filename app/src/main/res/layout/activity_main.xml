@@ -9,102 +9,22 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/barrier_top2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         tools:layout_editor_absoluteX="0dp"
         tools:listitem="@layout/card_post" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier_top"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="edit,save" />
-
-    <EditText
-        android:id="@+id/edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:hint="@string/post_text"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/save"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/common_desciption"
+        android:contentDescription="@string/add_post"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_send" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier_top2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="cancelEdit,pen" />
-
-
-    <ImageButton
-        android:id="@+id/cancelEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/common_desciption"
-        app:layout_constraintBottom_toBottomOf="@id/barrier_top"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
-
-    <ImageView
-        android:id="@+id/pen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/common_desciption"
-        app:layout_constraintBottom_toBottomOf="@id/barrier_top"
-        app:layout_constraintStart_toStartOf="parent"
-
-        app:srcCompat="@android:drawable/ic_menu_edit" />
-
-    <TextView
-        android:id="@+id/edit_caption"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/common_spacing"
-        android:text="@string/edit_caption"
-        android:textColor="@color/design_default_color_primary"
-        app:layout_constraintStart_toEndOf="@id/pen"
-        app:layout_constraintTop_toBottomOf="@id/barrier_top2" />
-
-    <TextView
-        android:id="@+id/content_preview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/common_spacing"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text=""
-        app:layout_constraintBottom_toBottomOf="@id/barrier_top"
-
-        app:layout_constraintEnd_toStartOf="@id/cancelEdit"
-        app:layout_constraintStart_toEndOf="@id/pen"
-        app:layout_constraintTop_toBottomOf="@id/edit_caption" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/edit_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:constraint_referenced_ids="pen,edit_caption,content_preview,cancelEdit" />
+        android:layout_margin="@dimen/common_spacing"
+        app:srcCompat="@android:drawable/ic_input_add" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

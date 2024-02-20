@@ -9,7 +9,10 @@
     <string name="menu_edit">Edit</string>
     <string name="common_desciption">Common description</string>
     <string name="edit_caption">Edit Post</string>
-    <string name="descr_views" >Views</string>
-    <string name="descr_like" >Like</string>
-    <string name="descr_share" >Share</string>
+    <string name="descr_views">Views</string>
+    <string name="descr_like">Like</string>
+    <string name="descr_share">Share</string>
+    <string name="chooser_share_post">Share post</string>
+    <string name="add_post">Add post</string>
+    <string name="view_video">View video</string>
 </resources>

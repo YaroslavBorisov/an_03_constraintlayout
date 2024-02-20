@@ -1,16 +1,20 @@
 package ru.netology.nmedia.adapter
 
+
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import java.math.BigDecimal
-import java.math.RoundingMode
+import ru.netology.nmedia.util.AndroidUtils.format
 
 interface onInteractionListener {
     fun onLike(post: Post)
@@ -47,7 +51,7 @@ class PostViewHolder(
 
             like.text = post.likes.format()
             share.text = post.shares.format()
-            viewsCount.text = post.views.format()
+            view.text = post.views.format()
 
             like.isChecked = post.likedByMe
 
@@ -58,19 +62,39 @@ class PostViewHolder(
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
+
+            if (post.videoUrl.isNullOrBlank()) {
+                binding.previewGroup.visibility = View.GONE
+            } else {
+                binding.previewGroup.visibility = View.VISIBLE
+
+                fun previewVideo(post: Post) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.videoUrl))
+                    startActivity(binding.root.context, intent, null)
+                }
+
+                binding.viewVideo.setOnClickListener() {
+                    previewVideo(post)
+                }
+                binding.videoPreview.setOnClickListener() {
+                    previewVideo(post)
+                }
+            }
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
                     setOnMenuItemClickListener { item ->
-                        when(item.itemId) {
-                            R.id.remove  -> {
+                        when (item.itemId) {
+                            R.id.remove -> {
                                 onInteractionListener.onRemove(post)
                                 true
                             }
-                            R.id.edit  -> {
+
+                            R.id.edit -> {
                                 onInteractionListener.onEdit(post)
                                 true
                             }
+
                             else -> false
                         }
                     }
@@ -80,18 +104,6 @@ class PostViewHolder(
     }
 }
 
-fun Int.format(): String {
-    if (this < 1_000) return this.toString()
-    if (this < 1_100) return "1K"
-    if (this < 10_000) return "%2.1fK".format(
-        (this.toBigDecimal().divide(BigDecimal(1000), 1, RoundingMode.DOWN).toDouble())
-    )
-    if (this < 1_000_000) return "%dK".format(this / 1000)
-    if (this < 1_000_000_000) return "%3.1fM".format(
-        (this.toBigDecimal().divide(BigDecimal(1_000_000), 1, RoundingMode.DOWN).toDouble())
-    )
-    return "###" // Number too big!
-}
 
 object PostDiffCallback : DiffUtil.ItemCallback<Post>() {
     override fun areItemsTheSame(oldItem: Post, newItem: Post) = oldItem.id == newItem.id

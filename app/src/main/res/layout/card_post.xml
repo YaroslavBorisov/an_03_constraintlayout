@@ -51,6 +51,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
         style="@style/Widget.AppTheme.MenuButton"
+        app:iconGravity="end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/description_post_menu"
@@ -72,11 +73,35 @@
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginBottom="@dimen/common_spacing"
         android:autoLink="web"
-        app:layout_constraintBottom_toTopOf="@id/barrier2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrier"
         tools:text="@sample/posts.json/data/content" />
+
+    <ImageButton
+        android:id="@+id/video_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_marginTop="@dimen/common_spacing"
+        android:background="@drawable/video_preview"
+        android:contentDescription="@string/view_video"
+        app:layout_constraintBottom_toTopOf="@id/barrier2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/view_video"
+        style="@style/Widget.AppTheme.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/view_video"
+        app:icon="@android:drawable/ic_media_play"
+        app:layout_constraintBottom_toBottomOf="@id/video_preview"
+        app:layout_constraintEnd_toEndOf="@id/video_preview"
+        app:layout_constraintStart_toStartOf="@id/video_preview"
+        app:layout_constraintTop_toBottomOf="@+id/barrier2"
+        app:layout_constraintTop_toTopOf="@id/video_preview" />
+
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier2"
@@ -110,27 +135,23 @@
         app:layout_constraintTop_toTopOf="@+id/like"
         tools:text="@sample/posts.json/data/shares" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/view"
+        style="@style/Widget.AppTheme.ShareButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/common_spacing"
-        android:background="#00000000"
         android:contentDescription="@string/descr_views"
-        app:layout_constraintBottom_toBottomOf="@+id/viewsCount"
-        app:layout_constraintEnd_toStartOf="@+id/viewsCount"
-        app:layout_constraintTop_toTopOf="@+id/viewsCount"
-        app:layout_constraintVertical_bias="0.4"
-        app:srcCompat="@drawable/ic_views_24" />
-
-    <TextView
-        android:id="@+id/viewsCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/like"
+        app:icon="@drawable/ic_views_24"
+        app:layout_constraintBottom_toBottomOf="@id/like"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/like"
-        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintTop_toTopOf="@id/like"
         tools:text="@sample/posts.json/data/views" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/preview_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="video_preview,view_video" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

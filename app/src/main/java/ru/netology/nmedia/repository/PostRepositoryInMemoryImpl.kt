@@ -24,7 +24,8 @@ class PostRepositoryInMemoryImpl : PostRepository {
             likedByMe = false,
             likes = 999,
             shares = 999_999,
-            views = 15
+            views = 15,
+            videoUrl = "https://www.youtube.com/watch?v=xSayYNy28TA&list=RDxSayYNy28TA&start_radio=1"
         ),
         Post(
             id = nextId++,
@@ -44,7 +45,8 @@ class PostRepositoryInMemoryImpl : PostRepository {
             likedByMe = false,
             likes = 999,
             shares = 999_999,
-            views = 35
+            views = 35,
+            videoUrl = "https://www.youtube.com/watch?v=sNJVFloPIVA&list=RDsNJVFloPIVA&start_radio=1"
         ),
         Post(
             id = nextId++,
