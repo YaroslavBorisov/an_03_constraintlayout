@@ -1,9 +1,12 @@
 package ru.netology.nmedia.activity
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.adapter.onInteractionListener
@@ -82,4 +85,8 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
+    fun viewVideo(url:String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        ContextCompat.startActivity(this, intent, null)
+    }
 }
