@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.MainActivity
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.AndroidUtils.format
@@ -68,16 +69,15 @@ class PostViewHolder(
             } else {
                 binding.previewGroup.visibility = View.VISIBLE
 
-                fun previewVideo(post: Post) {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.videoUrl))
-                    startActivity(binding.root.context, intent, null)
+                fun viewVideo() {
+                    (binding.root.context as MainActivity).viewVideo(post.videoUrl)
                 }
 
                 binding.viewVideo.setOnClickListener() {
-                    previewVideo(post)
+                    viewVideo()
                 }
                 binding.videoPreview.setOnClickListener() {
-                    previewVideo(post)
+                    viewVideo()
                 }
             }
             menu.setOnClickListener {
@@ -102,6 +102,7 @@ class PostViewHolder(
             }
         }
     }
+
 }
 
 
