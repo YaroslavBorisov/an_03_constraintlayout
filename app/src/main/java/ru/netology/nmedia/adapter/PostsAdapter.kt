@@ -1,18 +1,18 @@
 package ru.netology.nmedia.adapter
 
 
-import android.content.Intent
-import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
-import ru.netology.nmedia.activity.MainActivity
+import ru.netology.nmedia.activity.AppActivity
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.AndroidUtils.format
@@ -70,7 +70,7 @@ class PostViewHolder(
                 binding.previewGroup.visibility = View.VISIBLE
 
                 fun viewVideo() {
-                    (binding.root.context as MainActivity).viewVideo(post.videoUrl)
+                    (binding.root.context as AppActivity).viewVideo(post.videoUrl)
                 }
 
                 binding.viewVideo.setOnClickListener() {
@@ -100,6 +100,14 @@ class PostViewHolder(
                     }
                 }.show()
             }
+            binding.root.setOnClickListener {
+                Log.wtf("Test", "Test ${post.id}")
+                binding.root.findNavController().navigate(
+                    R.id.action_feedFragment_to_postFragment,
+                    bundleOf("postID" to post.id)
+                )
+            }
+
         }
     }
 
