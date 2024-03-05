@@ -72,6 +72,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.add.setOnClickListener {
+            viewModel.clearEditedPost()
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
