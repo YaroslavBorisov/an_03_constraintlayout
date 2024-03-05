@@ -1,31 +1,33 @@
 package ru.netology.nmedia.activity
 
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.adapter.onInteractionListener
-import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
-class MainActivity : AppCompatActivity() {
+class FeedFragment : Fragment() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    }
 
-        val viewModel: PostViewModel by viewModels()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-        val newPostLauncher = registerForActivityResult(NewPostContract) { result ->
-            result ?: return@registerForActivityResult
-            viewModel.updateSave(result)
-        }
+        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
         val adapter = PostsAdapter(object : onInteractionListener {
             override fun onLike(post: Post) {
@@ -49,11 +51,17 @@ class MainActivity : AppCompatActivity() {
 
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
-                newPostLauncher.launch(post.content)
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textArg = post.content
+                    })
             }
         })
 
-        viewModel.data.observe(this) { posts ->
+        binding.list.adapter = adapter
+
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
             val isNewPostAdded =
                 adapter.currentList.size < posts.size && adapter.currentList.size > 0
             adapter.submitList(posts) {
@@ -63,30 +71,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-//        viewModel.edited.observe(this) { post ->
-//            if (post.id != 0L) {
-//                binding.editGroup.visibility = View.VISIBLE
-//                binding.contentPreview.setText(post.content)
-//                binding.edit.focusAndShowKeyboard()
-//            } else {
-//                binding.editGroup.visibility = View.GONE
-//            }
-//            binding.edit.setText(post.content)
-//        }
-
-        binding.list.adapter = adapter
-
         binding.add.setOnClickListener {
-            newPostLauncher.launch(null)
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
-//        binding.cancelEdit.setOnClickListener {
-//            viewModel.cancelEdit()
-//        }
-    }
-
-    fun viewVideo(url:String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        ContextCompat.startActivity(this, intent, null)
+        return binding.root
     }
 }

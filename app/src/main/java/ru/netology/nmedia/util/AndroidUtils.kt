@@ -1,12 +1,12 @@
 package ru.netology.nmedia.util
 
-import android.text.Editable
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 object AndroidUtils {
-    fun String.toEditable(): Editable =
-        Editable.Factory.getInstance().newEditable(this)
 
     fun Int.format(): String {
         if (this < 1_000) return this.toString()
@@ -21,10 +21,10 @@ object AndroidUtils {
         return "###" // Number too big!
     }
 
-//    fun hideKeyboard(view: View) {
-//        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//        imm.hideSoftInputFromWindow(view.windowToken, 0)
-//    }
+    fun hideKeyboard(view: View) {
+        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 
 //    fun View.focusAndShowKeyboard() {
 //        /**
