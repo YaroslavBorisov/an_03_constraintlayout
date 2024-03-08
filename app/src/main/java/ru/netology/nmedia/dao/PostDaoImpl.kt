@@ -186,14 +186,14 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
     private fun Cursor.getBoolean(columnIndex: Int) = getInt(columnIndex) != 0
 
     private fun isDraftPresent(): Boolean {
-        return db.query(
-            PostColumns.TABLE,
-            PostColumns.ALL_COLUMNS,
-            PostColumns.COLUMN_DRAFT,
-            null,
-            null,
-            null,
-            null
-        ).count > 0
+        db.rawQuery(
+            """
+           SELECT ${PostColumns.COLUMN_ID}
+           FROM ${PostColumns.TABLE}
+           WHERE ${PostColumns.COLUMN_DRAFT};
+        """.trimIndent(), null
+        ).use {
+            return it.moveToFirst()
+        }
     }
 }
