@@ -1,7 +1,6 @@
 package ru.netology.nmedia.adapter
 
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -101,7 +100,7 @@ class PostViewHolder(
                 }.show()
             }
             binding.root.setOnClickListener {
-                Log.wtf("Test", "Test ${post.id}")
+                //Log.wtf("Test", "Test ${post.id}")
                 binding.root.findNavController().navigate(
                     R.id.action_feedFragment_to_postFragment,
                     bundleOf("postID" to post.id)
