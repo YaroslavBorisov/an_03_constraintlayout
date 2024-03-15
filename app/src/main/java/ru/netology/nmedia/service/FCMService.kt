@@ -14,7 +14,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
-import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
 
@@ -40,9 +39,12 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         message.data[action]?.let {
-            when ( try { Action.valueOf(it) } catch (e:IllegalArgumentException) { return@let} ) {
-                Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-                Action.ADD -> handleAdd(gson.fromJson(message.data[content], Add::class.java))
+            Action.entries.find { entry -> entry.name == it }?.let {
+                when (it) {
+                    Action.LIKE -> handleLike(gson.fromJson(message.data[content],Like::class.java))
+
+                    Action.ADD -> handleAdd(gson.fromJson(message.data[content], Add::class.java))
+                }
             }
         }
     }
@@ -82,7 +84,7 @@ class FCMService : FirebaseMessagingService() {
                     R.string.notification_post_added,
                     content.postAuthor,
                 )
-                )
+            )
 
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content.content))
@@ -90,7 +92,6 @@ class FCMService : FirebaseMessagingService() {
 
         notify(notification)
     }
-
 
 
     private fun notify(notification: Notification) {
@@ -118,7 +119,7 @@ data class Like(
     val postAuthor: String,
 )
 
-data class Add (
+data class Add(
     val postId: Long,
     val postAuthor: String,
     val content: String,

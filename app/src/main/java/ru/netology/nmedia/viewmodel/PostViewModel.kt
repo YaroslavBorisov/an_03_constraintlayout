@@ -44,14 +44,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = empty
     }
 
-    fun saveDraft(content: String) {
-        repository.saveDraft(content)
-    }
+    fun saveDraft(content: String) = repository.saveDraft(content)
 
     fun getDraft() = repository.getDraft()
 
-    fun deleteDraft() {
-        repository.deleteDraft()
-    }
+    fun deleteDraft() = repository.deleteDraft()
 
 }
