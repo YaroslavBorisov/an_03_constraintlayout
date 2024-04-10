@@ -41,13 +41,13 @@ interface PostDao {
     fun insertDraft(content: String) =
         insert(PostEntity(0, "Me", content = content, "Now", draft = true))
 
-    fun getDraft() = getDraftEntity().getOrNull(0)?.content ?: ""
+    fun getDraft() = getDraftEntity()?.content ?: ""
 
     @Query("DELETE FROM PostEntity WHERE draft")
     fun deleteDraft()
 
-    private fun getDraftId() = getDraftEntity().getOrNull(0)?.id
+    private fun getDraftId() = getDraftEntity()?.id
 
     @Query("SELECT id, content FROM PostEntity WHERE draft")
-    fun getDraftEntity(): List<Draft>
+    fun getDraftEntity(): Draft?
 }
