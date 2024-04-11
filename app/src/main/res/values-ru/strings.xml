@@ -21,4 +21,7 @@
     <string name="channel_remote_description">Уведомления с удаленного сервера</string>
     <string name="notification_user_liked">Пользователь %1$s лайкнул пост пользователя %2$s</string>
     <string name="notification_post_added">Пользователь %1$s добавил новый пост</string>
+    <string name="no_posts">Нет постов</string>
+    <string name="something_went_wrong">Все плохо</string>
+    <string name="retry">Попробовать снова</string>
 </resources>

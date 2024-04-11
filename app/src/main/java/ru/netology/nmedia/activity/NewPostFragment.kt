@@ -53,8 +53,13 @@ class NewPostFragment : Fragment() {
             viewModel.updateSave(binding.edit.text.toString())
             viewModel.deleteDraft()
             AndroidUtils.hideKeyboard(requireView())
+        }
+
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.load()
             findNavController().navigateUp()
         }
+
         return binding.root
     }
 }
