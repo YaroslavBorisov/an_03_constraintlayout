@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
@@ -35,7 +36,7 @@ class PostFragment : Fragment() {
 
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
-        val post = viewModel.data.value?.find { it.id == postID }
+        val post = viewModel.data.value?.posts?.find { it.id == postID }
 
         if (post != null) {
             refresh(binding, viewModel)
@@ -44,7 +45,7 @@ class PostFragment : Fragment() {
 
                 like.setOnClickListener {
                     //onInteractionListener.onLike(post)
-                    viewModel.likeById(post.id)
+                    viewModel.likeById(post.id, post.likedByMe)
                 }
 
                 share.setOnClickListener {
@@ -106,13 +107,20 @@ class PostFragment : Fragment() {
             viewModel.data.observe(viewLifecycleOwner) {
                 refresh(binding, viewModel)
             }
+
         }
         return binding.root
     }
 
     private fun refresh(binding: FragmentPostBinding, viewModel: PostViewModel) {
         with(binding) {
-            val post = viewModel.data.value?.find { it.id == postID }
+            val state = viewModel.data.value ?: return
+
+            errorGroup.isVisible = state.error
+            progress.isVisible = state.loading
+            emptyText.isVisible = state.empty
+
+            val post = state.posts.find { it.id == postID }
 
             if (post != null) {
                 author.text = post.author
