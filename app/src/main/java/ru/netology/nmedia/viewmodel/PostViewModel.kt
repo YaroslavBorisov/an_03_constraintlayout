@@ -9,6 +9,7 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.IOException
 import java.lang.Exception
 import kotlin.concurrent.thread
 
@@ -30,11 +31,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-
-    private val _postRemoved = SingleLiveEvent<Unit>()
-    val postRemoved: LiveData<Unit>
-        get() = _postRemoved
-
 
     val edited = MutableLiveData(empty)
 
@@ -58,15 +54,39 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun likeById(id: Long, likedByMe: Boolean) {
         thread {
-            repository.likeById(id, likedByMe)
-            load()
+            val oldPosts = _data.value?.posts.orEmpty()
+            _data.postValue(
+                _data.value?.copy(posts = oldPosts.map {
+                    if (it.id == id) it.copy(likedByMe = !it.likedByMe,
+                        likes = it.likes + if (it.likedByMe) -1 else 1)
+                        else it
+                })
+            )
+            try{
+                val post = repository.likeById(id, likedByMe)
+                _data.postValue(
+                    _data.value?.copy(posts = oldPosts.map {
+                        if (it.id == id) post else it
+                    })
+                )
+            } catch (e:IOException) {
+                _data.postValue(_data.value?.copy(posts = oldPosts, error = true))
+            }
+
         }
     }
     fun shareById(id: Long) = repository.shareById(id)
     fun removeById(id: Long) {
         thread {
-            repository.removeById(id)
-            _postRemoved.postValue(Unit)
+            val oldPosts = _data.value?.posts.orEmpty()
+            _data.postValue(
+                _data.value?.copy(posts = oldPosts.filter { it.id != id })
+            )
+            try{
+                repository.removeById(id)
+            } catch (e:IOException) {
+                _data.postValue(_data.value?.copy(posts = oldPosts, error = true))
+            }
         }
     }
 

@@ -46,7 +46,6 @@ class PostFragment : Fragment() {
                 like.setOnClickListener {
                     //onInteractionListener.onLike(post)
                     viewModel.likeById(post.id, post.likedByMe)
-                    viewModel.load()
                 }
 
                 share.setOnClickListener {
@@ -83,8 +82,7 @@ class PostFragment : Fragment() {
                                 R.id.remove -> {
                                     //onInteractionListener.onRemove(post)
                                     viewModel.removeById(post.id)
-                                    viewModel.postRemoved
-
+                                    findNavController().navigateUp()
                                     true
                                 }
 
@@ -110,10 +108,6 @@ class PostFragment : Fragment() {
                 refresh(binding, viewModel)
             }
 
-            viewModel.postRemoved.observe(viewLifecycleOwner) {
-                viewModel.load()
-                findNavController().navigateUp()
-            }
         }
         return binding.root
     }
