@@ -14,6 +14,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.util.AndroidUtils.format
+import ru.netology.nmedia.util.load
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 private const val ARG_POST_ID = "postID"
@@ -124,6 +125,7 @@ class PostFragment : Fragment() {
 
             if (post != null) {
                 author.text = post.author
+                avatar.load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
                 published.text = post.published
 
                 content.text = post.content
@@ -133,6 +135,15 @@ class PostFragment : Fragment() {
                 view.text = post.views.format()
 
                 like.isChecked = post.likedByMe
+
+                if (post.attachment == null) {
+                    attachmentGroup.visibility = View.GONE
+                } else {
+                    attachmentGroup.visibility = View.VISIBLE
+                    attachmentImage.load("http://10.0.2.2:9999/images/${post.attachment.url}")
+                    avatar.contentDescription = post.attachment.description
+                }
+
                 if (post.videoUrl.isNullOrBlank()) {
                     binding.previewGroup.visibility = View.GONE
                 } else {
