@@ -107,6 +107,24 @@
             app:layout_constraintTop_toBottomOf="@+id/barrier2"
             app:layout_constraintTop_toTopOf="@id/video_preview" />
 
+        <ImageView
+            android:id="@+id/attachment_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="@dimen/common_spacing"
+            android:contentDescription="@string/attachment_image"
+            app:layout_constraintBottom_toTopOf="@id/barrier2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/attachment_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:constraint_referenced_ids="attachment_image" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier2"
