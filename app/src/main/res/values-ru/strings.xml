@@ -25,4 +25,5 @@
     <string name="something_went_wrong">Все плохо</string>
     <string name="retry">Попробовать снова</string>
     <string name="attachment_image" >Изображение вложения</string>
+    <string name="error_updating">Ошибка, попробуйте позже!</string>
 </resources>
