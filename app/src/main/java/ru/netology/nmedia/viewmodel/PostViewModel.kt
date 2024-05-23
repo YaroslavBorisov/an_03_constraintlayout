@@ -45,7 +45,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    val edited = MutableLiveData(empty)
+    private val edited = MutableLiveData(empty)
 
     init {
         load()
@@ -86,13 +86,18 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 //            })
 
 
-        repository.likeById(id, likedByMe)
+        try {
+            repository.likeById(id, likedByMe)
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
     }
 
     private fun showToast() {
         Toast.makeText(getApplication<Application>().applicationContext,
             R.string.error_updating, Toast.LENGTH_LONG).show()
     }
+
     fun shareById(id: Long) = viewModelScope.launch {
         repository.shareById(id)
     }
@@ -101,8 +106,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 //        val oldPosts = _data.value?.posts.orEmpty()
 //        _data.value =
 //            _data.value?.copy(posts = oldPosts.filter { it.id != id })
-
-        repository.removeById(id)
+        try {
+            repository.removeById(id)
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
     }
 
     fun updateSave(content: String) = viewModelScope.launch {
