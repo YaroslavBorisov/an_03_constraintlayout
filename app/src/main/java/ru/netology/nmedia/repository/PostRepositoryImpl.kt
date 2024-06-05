@@ -2,10 +2,8 @@ package ru.netology.nmedia.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
@@ -46,52 +44,51 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     private suspend fun executePendingRequests() {
+
         clearExecutedRequests()
-        withContext(Dispatchers.IO) {
-            pendingRequests.map { request ->
-                try {
-                    when (request.type) {
-                        PendingRequestType.LIKE -> {
-                            //Log.d("Myapp", "LIKE ${request.id}")
-                            async {
-                                ApiService.service.likeById(request.id)
-                                synchronized(executedRequests) {
-                                    executedRequests.add(request)
-                                }
-                            }
-                        }
 
-                        PendingRequestType.DISLIKE -> {
-                            async {
-                                ApiService.service.dislikeById(request.id)
-                                synchronized(executedRequests) {
-                                    executedRequests.add(request)
+        coroutineScope {
+            synchronized(pendingRequests) {
+                pendingRequests.filter { !it.sent }.map { request ->
+                    request.sent = true
+                    launch {
+                        try {
+                            when (request.type) {
+                                PendingRequestType.LIKE -> {
+                                    ApiService.service.likeById(request.id)
+                                    synchronized(executedRequests) {
+                                        executedRequests.add(request)
+                                    }
                                 }
-                            }
-                        }
 
-                        PendingRequestType.DELETE -> {
-                            async {
-                                ApiService.service.deleteById(request.id)
-                                synchronized(executedRequests) {
-                                    executedRequests.add(request)
+                                PendingRequestType.DISLIKE -> {
+                                    ApiService.service.dislikeById(request.id)
+                                    synchronized(executedRequests) {
+                                        executedRequests.add(request)
+                                    }
+                                }
+
+                                PendingRequestType.DELETE -> {
+                                    ApiService.service.deleteById(request.id)
+                                    synchronized(executedRequests) {
+                                        executedRequests.add(request)
+                                    }
                                 }
                             }
+                        } catch (e: Exception) {
+                            request.sent = false
+                            throw e
                         }
                     }
-
-                } catch (e: Exception) {
-                    throw e
                 }
-
-            }.awaitAll()
+            }
         }
         clearExecutedRequests()
     }
 
     private fun clearExecutedRequests() {
         synchronized(pendingRequests) {
-            synchronized(executedRequests){
+            synchronized(executedRequests) {
                 pendingRequests.removeAll(executedRequests)
                 executedRequests.clear()
             }
@@ -156,5 +153,4 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
 enum class PendingRequestType { DELETE, LIKE, DISLIKE }
 
-data class PendingRequest(val type: PendingRequestType, val id: Long)
-
+data class PendingRequest(val type: PendingRequestType, val id: Long, var sent: Boolean = false)
