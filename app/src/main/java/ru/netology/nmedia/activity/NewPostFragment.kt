@@ -45,13 +45,13 @@ class NewPostFragment : Fragment() {
         binding = FragmentNewPostBinding.inflate(inflater, container, false)
 
         arguments?.textArg?.let(binding.edit::setText) ?: run {
-            binding.edit.setText(viewModel.getDraft())
+            //binding.edit.setText(viewModel.getDraft())
             isNewPost = true
         }
 
         binding.ok.setOnClickListener {
             viewModel.updateSave(binding.edit.text.toString())
-            viewModel.deleteDraft()
+            //viewModel.deleteDraft()
             AndroidUtils.hideKeyboard(requireView())
         }
 

@@ -116,9 +116,10 @@ class PostFragment : Fragment() {
     private fun refresh(binding: FragmentPostBinding, viewModel: PostViewModel) {
         with(binding) {
             val state = viewModel.data.value ?: return
+            val modelState = viewModel.dataState.value ?:return
 
-            errorGroup.isVisible = state.error
-            progress.isVisible = state.loading
+            errorGroup.isVisible = modelState.error
+            progress.isVisible = modelState.loading
             emptyText.isVisible = state.empty
 
             val post = state.posts.find { it.id == postID }

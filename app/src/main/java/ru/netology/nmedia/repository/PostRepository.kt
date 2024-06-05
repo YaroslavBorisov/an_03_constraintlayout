@@ -1,20 +1,20 @@
 package ru.netology.nmedia.repository
 
+import androidx.lifecycle.LiveData
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
 import java.lang.Exception
 
 interface PostRepository {
-    fun getAll(callback: Callback<List<Post>>)
-    fun likeById(id: Long, likedByMe: Boolean, callback:  Callback<Post>)
-    fun shareById(id: Long)
-    fun removeById(id: Long, callback: Callback<Unit>)
-    fun save(post: Post, callback: Callback<Post>)
-    fun saveDraft(content: String)
-    fun getDraft(): String
-    fun deleteDraft()
+    val data: LiveData<List<Post>>
 
-    interface Callback <T> {
-        fun onSuccess(result: T)
-        fun onError(exception: Exception)
-    }
+    suspend fun getAll()
+    suspend fun likeById(id: Long, likedByMe: Boolean)
+    suspend fun shareById(id: Long)
+    suspend fun removeById(id: Long)
+    suspend fun save(post: Post)
+    suspend fun saveDraft(content: String)
+    suspend fun getDraft()
+    suspend fun deleteDraft()
+
 }

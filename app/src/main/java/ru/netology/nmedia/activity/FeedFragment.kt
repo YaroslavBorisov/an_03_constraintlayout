@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -71,10 +72,22 @@ class FeedFragment : Fragment() {
                 }
             }
 
-            binding.errorGroup.isVisible = state.error
-            binding.progress.isVisible = state.loading
             binding.emptyText.isVisible = state.empty
 
+        }
+
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            //binding.errorGroup.isVisible = state.error
+            binding.progress.isVisible = state.loading
+            binding.swipeRefresh.isRefreshing = state.refreshing
+            if (state.error) {
+                Snackbar.make(binding.root, R.string.error_updating, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry) {
+                        viewModel.refreshPosts()
+                    }
+                    //.setAnchorView(binding.add)
+                    .show()
+            }
         }
 
         binding.retry.setOnClickListener {
@@ -87,8 +100,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.load()
-            binding.swipeRefresh.isRefreshing = false
+            viewModel.refreshPosts()
         }
 
         return binding.root
