@@ -2,9 +2,17 @@ package ru.netology.nmedia.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.api.PostApi
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -15,15 +23,18 @@ import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
 import java.io.IOException
 import java.util.Collections
+import kotlin.time.Duration.Companion.seconds
 
 class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     private val pendingRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())
     private val executedRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())
 
-    override val data: LiveData<List<Post>>
+    override val data: Flow<List<Post>>
         //get() = dao.getAll().map { it.toDto()}
-        get() = dao.getAll().map(List<PostEntity>::toDto)
+        get() = dao.getAll()
+            .map(List<PostEntity>::toDto)
+            .flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         try {
@@ -144,10 +155,26 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun shareById(id: Long) = Unit
 
     override suspend fun saveDraft(content: String) = Unit
-
     override suspend fun getDraft() = Unit
-
     override suspend fun deleteDraft() = Unit
+
+    override fun getNewerCount(newerId: Long): Flow<Int>  = flow {
+        while(true) {
+            delay(10.seconds)
+            try {
+                val response = ApiService.service.getNewer(newerId)
+                val posts = response.body() ?: continue
+                dao.insert(posts.toEntity())
+                emit(posts.size)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // do nothing
+            }
+
+        }
+
+    }
 
 }
 

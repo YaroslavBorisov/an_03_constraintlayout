@@ -26,4 +26,5 @@
     <string name="retry">Попробовать снова</string>
     <string name="attachment_image" >Изображение вложения</string>
     <string name="error_updating">Ошибка, попробуйте позже!</string>
+    <string name="bell">Bell</string>
 </resources>
