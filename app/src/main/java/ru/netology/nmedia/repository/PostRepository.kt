@@ -2,7 +2,6 @@ package ru.netology.nmedia.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.PostEntity
 
 interface PostRepository {
     val data: Flow<List<Post>>
@@ -17,5 +16,6 @@ interface PostRepository {
     suspend fun deleteDraft()
 
     fun getNewerCount(newerId: Long): Flow<Int>
+    suspend fun showHiddenPosts()
 
 }

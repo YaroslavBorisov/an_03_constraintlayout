@@ -17,12 +17,13 @@ class PostEntity(
     val shares: Int = 0,
     val views: Int = 0,
     val videoUrl: String? = "",
-    val draft: Boolean = false
+    val draft: Boolean = false,
+    val visible: Boolean = true
 ) {
     fun toDto() = Post(id, author, authorAvatar, content, published, likes, likedByMe, shares, views, videoUrl)
 
     companion object {
-        fun fromDto(post: Post) = PostEntity(
+        fun fromDto(post: Post, visible:Boolean = true) = PostEntity(
             post.id,
             post.author,
             post.authorAvatar,
@@ -32,10 +33,12 @@ class PostEntity(
             post.likedByMe,
             post.shares,
             post.views,
-            post.videoUrl
+            post.videoUrl,
+            false,
+            visible
         )
     }
 }
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
-fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDto)
+fun List<Post>.toEntity(visible:Boolean = true): List<PostEntity> = map { PostEntity.fromDto(it, visible) }

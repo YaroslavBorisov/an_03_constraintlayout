@@ -1,7 +1,5 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -12,7 +10,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.ApiService
-import ru.netology.nmedia.api.PostApi
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -164,8 +161,9 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             try {
                 val response = ApiService.service.getNewer(newerId)
                 val posts = response.body() ?: continue
-                dao.insert(posts.toEntity())
-                emit(posts.size)
+                dao.insert(posts.toEntity(false))
+                //emit(posts.size)
+                emit(dao.countHidden())
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -174,6 +172,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
         }
 
+    }
+
+    override suspend fun showHiddenPosts() {
+        dao.showAll()
     }
 
 }

@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -156,6 +155,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteDraft() =  viewModelScope.launch {
         repository.deleteDraft()
+    }
+
+    fun showHiddenPosts() =  viewModelScope.launch {
+        repository.showHiddenPosts()
     }
 
 }

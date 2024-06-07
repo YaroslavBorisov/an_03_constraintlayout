@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -91,9 +92,29 @@ class FeedFragment : Fragment() {
             }
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) {
-            Log.d("FeedFragment", "Newer count: $it")
+        viewModel.newerCount.observe(viewLifecycleOwner) { newMsgCount ->
+//            if(newMsgCount == 0) {
+//                binding.newPosts.isVisible = false
+//                return@observe
+//            }
+            binding.newPosts.isVisible = (newMsgCount != 0)
+
+            Log.d("FeedFragment", "Newer count: $newMsgCount")
         }
+
+        binding.newPosts.setOnClickListener {
+            binding.newPosts.isVisible = false
+            viewModel.showHiddenPosts()
+        }
+
+        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if(positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+                super.onItemRangeInserted(positionStart, itemCount)
+            }
+        })
 
         binding.retry.setOnClickListener {
             viewModel.load()

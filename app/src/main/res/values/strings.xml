@@ -26,4 +26,5 @@
     <string name="attachment_image" >Attachment image</string>
     <string name="error_updating">Error occurred, try again later!</string>
     <string name="bell">Bell</string>
+    <string name="new_posts">New posts</string>
 </resources>
