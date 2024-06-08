@@ -1,16 +1,16 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity WHERE NOT draft ORDER BY id DESC")
-    fun getAll(): LiveData<List<PostEntity>>
+    @Query("SELECT * FROM PostEntity WHERE (NOT draft) AND visible ORDER BY id DESC")
+    fun getAll(): Flow<List<PostEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
@@ -31,6 +31,12 @@ interface PostDao {
 
     @Query("UPDATE PostEntity SET shares = shares + 1 WHERE id = :id")
     suspend fun shareById(id: Long)
+
+    @Query("UPDATE PostEntity SET visible = 1 WHERE NOT visible")
+    suspend fun showAll()
+
+    @Query("SELECT COUNT(*) FROM PostEntity WHERE NOT visible")
+    suspend fun countHidden(): Int
 
     class Draft(val id:Long, val content: String)
 
