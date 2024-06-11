@@ -1,6 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -8,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -20,9 +22,11 @@ import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 
 val empty = Post(
     id = 0,
@@ -31,6 +35,8 @@ val empty = Post(
     published = "",
     likedByMe = false
 )
+
+private val nophoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository = PostRepositoryImpl(AppDb.getInstance(application).postDao)
@@ -45,6 +51,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+
+    private val _photo = MutableLiveData(nophoto)
+    val photo: LiveData<PhotoModel>
+        get() = _photo
 
     val newerCount: LiveData<Int> = data.switchMap {
         val newerId = it.posts.firstOrNull()?.id ?: 0L
@@ -127,13 +137,29 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateSave(content: String) = viewModelScope.launch {
+//        edited.value?.let {
+//            if (content != it.content) {
+//                repository.save(
+//                    it.copy(content = content))
+//                _postCreated.value = Unit
+//            }
+//            edited.value = empty
+//        }
         edited.value?.let {
-            if (content != it.content) {
-                repository.save(
-                    it.copy(content = content))
-                _postCreated.value = Unit
+            _postCreated.value = Unit
+            try {
+                when(_photo.value) {
+                    nophoto -> repository.save(it.copy(content = content))
+                    else -> _photo.value?.file?.let { file ->
+                        repository.saveWithAttachment(it.copy(content = content), file)
+                    }
+                }
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
             edited.value = empty
+            _photo.value = nophoto
         }
     }
 
@@ -159,6 +185,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showHiddenPosts() =  viewModelScope.launch {
         repository.showHiddenPosts()
+    }
+
+    fun changePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
+    }
+
+    fun dropPhoto() {
+        _photo.value = nophoto
     }
 
 }

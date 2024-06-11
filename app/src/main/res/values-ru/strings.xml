@@ -28,4 +28,9 @@
     <string name="error_updating">Ошибка, попробуйте позже!</string>
     <string name="bell">Bell</string>
     <string name="new_posts">Свежие записи</string>
+    <string name="menu_save">Сохранить</string>
+    <string name="description_photo">Фото</string>
+    <string name="remove">Удалить</string>
+    <string name="description_select_photo">Выбрать фото</string>
+    <string name="description_take_photo">Сделать фото</string>
 </resources>

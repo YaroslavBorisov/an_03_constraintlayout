@@ -70,8 +70,7 @@ class PostViewHolder(
                 attachmentGroup.visibility = View.GONE
             } else {
                 attachmentGroup.visibility = View.VISIBLE
-                attachmentImage.load("http://10.0.2.2:9999/images/${post.attachment.url}")
-                avatar.contentDescription = post.attachment.description
+                attachmentImage.load("http://10.0.2.2:9999/media/${post.attachment.url}")
             }
 
 

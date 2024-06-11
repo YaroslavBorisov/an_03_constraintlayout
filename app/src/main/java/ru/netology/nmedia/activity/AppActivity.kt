@@ -48,11 +48,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         checkGoogleApiAvailability()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options_menu,menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
     fun viewVideo(url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         ContextCompat.startActivity(this, intent, null)
