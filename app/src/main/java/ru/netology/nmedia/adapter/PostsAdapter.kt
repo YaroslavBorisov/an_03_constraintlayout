@@ -110,7 +110,7 @@ class PostViewHolder(
                     }
                 }.show()
             }
-            binding.root.setOnClickListener {
+            root.setOnClickListener {
                 //Log.wtf("Test", "Test ${post.id}")
                 binding.root.findNavController().navigate(
                     R.id.action_feedFragment_to_postFragment,
@@ -118,9 +118,14 @@ class PostViewHolder(
                 )
             }
 
+            attachmentImage.setOnClickListener {
+                binding.root.findNavController().navigate(
+                    R.id.action_feedFragment_to_attachmentFragment,
+                    bundleOf("attachmentUri" to post.attachment?.url)
+                )
+            }
         }
     }
-
 }
 
 

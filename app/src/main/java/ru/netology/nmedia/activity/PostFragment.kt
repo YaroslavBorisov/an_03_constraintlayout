@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -60,6 +62,12 @@ class PostFragment : Fragment() {
                     startActivity(chooser)
                     viewModel.shareById(post.id)
 
+                }
+
+                attachmentImage.setOnClickListener {
+                    binding.root.findNavController().navigate(
+                        R.id.action_postFragment_to_attachmentFragment,
+                        bundleOf("attachmentUri" to post.attachment?.url))
                 }
 
                 if (!post.videoUrl.isNullOrBlank()) {
