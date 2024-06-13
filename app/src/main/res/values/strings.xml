@@ -27,4 +27,9 @@
     <string name="error_updating">Error occurred, try again later!</string>
     <string name="bell">Bell</string>
     <string name="new_posts">New posts</string>
+    <string name="menu_save">Save</string>
+    <string name="description_photo">Photo</string>
+    <string name="remove">Remove</string>
+    <string name="description_select_photo">Select photo</string>
+    <string name="description_take_photo">Take photo</string>
 </resources>

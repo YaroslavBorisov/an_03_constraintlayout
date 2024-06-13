@@ -9,15 +9,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
+import java.io.File
 import java.io.IOException
 import java.util.Collections
 import kotlin.time.Duration.Companion.seconds
@@ -146,7 +152,41 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     override suspend fun save(post: Post) {
-        ApiService.service.save(post)
+        try {
+            val response = ApiService.service.save(post)
+
+            if (!response.isSuccessful) {
+                throw ApiError(response.code())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: Exception) {
+            throw UnknownException
+        }
+
+    }
+
+    override suspend fun saveWithAttachment(post: Post, file: File) {
+        save(post.copy(attachment = Attachment(upload(file).id, AttachmentType.IMAGE)))
+    }
+
+    private suspend fun upload(file: File): Media {
+        try {
+            val part = MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
+            val response = ApiService.service.upload(part)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code())
+            }
+
+            return response.body() ?: throw ApiError(response.code())
+        } catch (e: IOException) {
+            throw NetworkException
+        } catch (e: Exception) {
+            throw UnknownException
+        }
     }
 
     override suspend fun shareById(id: Long) = Unit
@@ -155,8 +195,8 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun getDraft() = Unit
     override suspend fun deleteDraft() = Unit
 
-    override fun getNewerCount(newerId: Long): Flow<Int>  = flow {
-        while(true) {
+    override fun getNewerCount(newerId: Long): Flow<Int> = flow {
+        while (true) {
             delay(10.seconds)
             try {
                 val response = ApiService.service.getNewer(newerId)

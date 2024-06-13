@@ -44,7 +44,7 @@ interface PostDao {
     //    getDraftId()?.let { changeContentById(it, content) } ?: insertDraft(content)
 
     suspend fun insertDraft(content: String) =
-        insert(PostEntity(0, "Me", "", content = content, "Now", draft = true))
+        insert(PostEntity(0, "Me", "", content = content, "Now", draft = true, attachment = null))
 
     suspend fun getDraft() = getDraftEntity().getOrNull(0)?.content ?: ""
 

@@ -64,6 +64,7 @@ dependencies {
     def retrofit_version = "2.9.0"
     def okhttplogging_version = "4.12.0"
     def coroutines_version = "1.8.0"
+    def imagepicker_version = "2.1"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -132,6 +133,8 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "androidx.room:room-ktx:$room_version"
+
+    implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
 
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
