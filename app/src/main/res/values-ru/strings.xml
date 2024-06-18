@@ -33,4 +33,7 @@
     <string name="remove">Удалить</string>
     <string name="description_select_photo">Выбрать фото</string>
     <string name="description_take_photo">Сделать фото</string>
+    <string name="sign_in">Зайти</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="logout">Выйти</string>
 </resources>

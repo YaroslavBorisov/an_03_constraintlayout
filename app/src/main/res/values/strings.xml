@@ -32,4 +32,7 @@
     <string name="remove">Remove</string>
     <string name="description_select_photo">Select photo</string>
     <string name="description_take_photo">Take photo</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="logout">Logout</string>
 </resources>
