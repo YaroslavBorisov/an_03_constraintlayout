@@ -5,7 +5,14 @@ import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.Token
+import ru.netology.nmedia.error.ApiError
+import java.io.File
 
 class AppAuth private constructor (context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -22,14 +29,13 @@ class AppAuth private constructor (context: Context) {
         } else {
             prefs.edit { clear() }
         }
-
     }
 
     @Synchronized
     fun setAuth(id: Long, token: String) {
         _state.value = Token(id, token)
         prefs.edit {
-            putLong(ID_KEY, 0)
+            putLong(ID_KEY, id)
             putString(TOKEN_KEY, token)
         }
     }
@@ -54,5 +60,43 @@ class AppAuth private constructor (context: Context) {
             INSTANCE = AppAuth(context.applicationContext)
 
         }
+
+        val isAuthorized
+            get() = getInstance()._state.value?.token != null
+
+        suspend fun signIn(login: String, pass: String) {
+            try {
+                val response = ApiService.service.updateUser(login, pass)
+                if (!response.isSuccessful) {
+                    throw ApiError(response.code())
+                }
+                val token = requireNotNull(response.body())
+                getInstance().setAuth(token.id, token.token)
+
+            } catch (e: Exception) {
+                throw e
+            }
+        }
+
+        suspend fun signUp(userName: String, login: String, pass: String, file: File?) {
+            try {
+                val response = file?.let {
+                    ApiService.service.registerUserWithPhoto(userName.toRequestBody("text/plain".toMediaType()),
+                        login.toRequestBody("text/plain".toMediaType()),
+                        pass.toRequestBody("text/plain".toMediaType()),
+                        MultipartBody.Part.createFormData("file", it.name, it.asRequestBody()))
+                } ?: ApiService.service.registerUser(login, pass, userName)
+
+                if (!response.isSuccessful) {
+                    throw ApiError(response.code())
+                }
+                val token = requireNotNull(response.body())
+                getInstance().setAuth(token.id, token.token)
+
+            } catch (e: Exception) {
+                throw e
+            }
+        }
+
     }
 }

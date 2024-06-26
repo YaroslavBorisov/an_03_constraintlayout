@@ -1,5 +1,7 @@
 package ru.netology.nmedia.activity
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -71,12 +74,22 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                     when (menuItem.itemId) {
                         R.id.sign_in, R.id.sign_up -> {
-                            AppAuth.getInstance().setAuth(5, "x-token")
+                            //AppAuth.getInstance().setAuth(5, "x-token")
+                            findNavController(R.id.nav_host_fragment)
+                                .navigate(R.id.action_global_loginFragment, Bundle().apply {
+                                    textArg =
+                                        if (menuItem.itemId == R.id.sign_up) "actionSignUp" else null
+                                })
                             true
                         }
 
                         R.id.logout -> {
-                            AppAuth.getInstance().clearAuth()
+                            val logoutConfirmationDialogFragment =
+                                LogoutConfirmationDialogFragment()
+                            logoutConfirmationDialogFragment.show(
+                                supportFragmentManager,
+                                LogoutConfirmationDialogFragment.TAG
+                            )
                             true
                         }
 
@@ -114,5 +127,20 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
             println(it)
         }
+    }
+}
+
+class LogoutConfirmationDialogFragment : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        AlertDialog.Builder(requireContext())
+            .setMessage(getString(R.string.logout_confirmation))
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                AppAuth.getInstance().clearAuth()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+            .create()
+
+    companion object {
+        const val TAG = "LogoutConfirmationDialog"
     }
 }

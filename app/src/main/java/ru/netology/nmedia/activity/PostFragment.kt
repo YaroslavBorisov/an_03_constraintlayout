@@ -12,8 +12,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.util.AndroidUtils.format
 import ru.netology.nmedia.util.load
@@ -48,7 +50,21 @@ class PostFragment : Fragment() {
 
                 like.setOnClickListener {
                     //onInteractionListener.onLike(post)
-                    viewModel.likeById(post.id, post.likedByMe)
+                    like.isChecked = post.likedByMe
+                    if (AppAuth.isAuthorized) {
+                        viewModel.likeById(post.id, post.likedByMe)
+                    } else {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.not_authorized),
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAction(R.string.sign_in) {
+                                findNavController().navigate(R.id.action_global_loginFragment)
+                            }
+                            //.setAnchorView(binding.add)
+                            .show()
+                    }
                 }
 
                 share.setOnClickListener {
@@ -83,6 +99,10 @@ class PostFragment : Fragment() {
                         viewVideo()
                     }
                 }
+
+
+                menu.isVisible = post.ownedByMe
+
                 menu.setOnClickListener {
                     PopupMenu(it.context, it).apply {
                         inflate(R.menu.options_post)
