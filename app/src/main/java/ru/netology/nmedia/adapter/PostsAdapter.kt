@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -58,6 +59,7 @@ class PostViewHolder(
             like.isChecked = post.likedByMe
 
             like.setOnClickListener {
+                like.isChecked = post.likedByMe
                 onInteractionListener.onLike(post)
             }
 
@@ -90,6 +92,9 @@ class PostViewHolder(
                     viewVideo()
                 }
             }
+
+            menu.isVisible = post.ownedByMe
+
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)

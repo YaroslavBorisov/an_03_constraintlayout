@@ -33,4 +33,18 @@
     <string name="remove">Удалить</string>
     <string name="description_select_photo">Выбрать фото</string>
     <string name="description_take_photo">Сделать фото</string>
+    <string name="sign_in">Зайти</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="logout">Выйти</string>
+    <string name="prompt_login">Пользователь</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Войти</string>
+    <string name="ok">ОК</string>
+    <string name="not_authorized">Требуется авторизация</string>
+    <string name="logout_confirmation">Вы уверены?</string>
+    <string name="cancel">Отмена</string>
+    <string name="prompt_username" >Имя пользователя</string>
+    <string name="prompt_confirm_password">Подтверждение пароля</string>
+    <string name="action_sign_up">Зарегистрироваться</string>
+    <string name="incorrect_password">Пароль пустой или не совпадает с подтвекрждением</string>
 </resources>

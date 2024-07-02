@@ -16,6 +16,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.adapter.onInteractionListener
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -35,7 +36,21 @@ class FeedFragment : Fragment() {
 
         val adapter = PostsAdapter(object : onInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id, post.likedByMe)
+                if (AppAuth.isAuthorized) {
+                    viewModel.likeById(post.id, post.likedByMe)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.not_authorized),
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(R.string.sign_in) {
+                            findNavController().navigate(R.id.action_global_loginFragment)
+                        }
+                        //.setAnchorView(binding.add)
+                        .show()
+                }
+
             }
 
             override fun onShare(post: Post) {
@@ -121,8 +136,21 @@ class FeedFragment : Fragment() {
         }
 
         binding.add.setOnClickListener {
-            viewModel.clearEditedPost()
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (AppAuth.isAuthorized) {
+                viewModel.clearEditedPost()
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.not_authorized),
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAction(R.string.sign_in) {
+                        findNavController().navigate(R.id.action_global_loginFragment)
+                    }
+                    .setAnchorView(binding.add)
+                    .show()
+            }
         }
 
         binding.swipeRefresh.setOnRefreshListener {

@@ -40,4 +40,8 @@
         android:id="@+id/attachmentFragment"
         android:name="ru.netology.nmedia.activity.AttachmentFragment"
         android:label="AttachmentFragment" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="ru.netology.nmedia.activity.LoginFragment"
+        android:label="LoginFragment" /><action android:id="@+id/action_global_loginFragment" app:destination="@id/loginFragment"/>
 </navigation>
