@@ -47,4 +47,5 @@
     <string name="prompt_confirm_password">Подтверждение пароля</string>
     <string name="action_sign_up">Зарегистрироваться</string>
     <string name="incorrect_password">Пароль пустой или не совпадает с подтвекрждением</string>
+    <string name="broadcast_message">Рассылка</string>
 </resources>

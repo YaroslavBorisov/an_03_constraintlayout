@@ -24,3 +24,5 @@ data class Attachment(
 )
 
 data class Media (val id: String)
+
+data class PushToken(val token: String)

@@ -14,6 +14,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 
@@ -38,19 +39,40 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        message.data[action]?.let {
-            Action.entries.find { entry -> entry.name == it }?.let {
-                when (it) {
-                    Action.LIKE -> handleLike(gson.fromJson(message.data[content],Like::class.java))
+//        message.data[action]?.let {
+//            Action.entries.find { entry -> entry.name == it }?.let {
+//                when (it) {
+//                    Action.LIKE -> handleLike(gson.fromJson(message.data[content],Like::class.java))
+//
+//                    Action.ADD -> handleAdd(gson.fromJson(message.data[content], Add::class.java))
+//                }
+//            }
+//        }
 
-                    Action.ADD -> handleAdd(gson.fromJson(message.data[content], Add::class.java))
-                }
-            }
+        val parsedMessage = gson.fromJson(message.data[content], Message::class.java)
+
+        if (parsedMessage.recipientId == (AppAuth.getInstance().state.value?.id ?: 0) || parsedMessage.recipientId == null ) {
+            showNotification(parsedMessage)
+        } else {
+            AppAuth.getInstance().sendPushToken()
         }
+
+        //println(message.data["content"])
     }
 
     override fun onNewToken(token: String) {
-        println(token)
+        AppAuth.getInstance().sendPushToken(token)
+    }
+
+    private fun showNotification(message: Message) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .run { message.recipientId?.let { this } ?: setContentTitle(getString(R.string.broadcast_message)) }
+            .setContentText(message.content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notify(notification)
     }
 
 
@@ -122,5 +144,10 @@ data class Like(
 data class Add(
     val postId: Long,
     val postAuthor: String,
+    val content: String,
+)
+
+data class Message (
+    val recipientId: Long?,
     val content: String,
 )
