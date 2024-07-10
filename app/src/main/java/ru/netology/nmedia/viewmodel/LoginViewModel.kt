@@ -12,8 +12,11 @@ import ru.netology.nmedia.model.PhotoModel
 import java.io.File
 
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val appAuth: AppAuth
+) : ViewModel() {
     private val _loginState = MutableLiveData(LoginModelState())
+
     val loginState: LiveData<LoginModelState>
         get() = _loginState
 
@@ -27,7 +30,7 @@ class LoginViewModel : ViewModel() {
     fun signIn(login: String, pass: String)  = viewModelScope.launch {
         try {
             _loginState.value = LoginModelState(loading = true)
-            AppAuth.signIn(login, pass)
+            appAuth.signIn(login, pass)
         } catch (e: Exception) {
             _loginState.value = LoginModelState(error = true)
         }
@@ -48,7 +51,7 @@ class LoginViewModel : ViewModel() {
     fun signUp(userName: String, login: String, pass: String) = viewModelScope.launch {
         try {
             _loginState.value = LoginModelState(loading = true)
-            AppAuth.signUp(userName, login, pass, _photo.value?.file)
+            appAuth.signUp(userName, login, pass, _photo.value?.file)
         } catch (e: Exception) {
             _loginState.value = LoginModelState(error = true)
         }

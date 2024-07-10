@@ -2,24 +2,25 @@ package ru.netology.nmedia.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
-import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentPostBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.util.AndroidUtils.format
 import ru.netology.nmedia.util.load
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 private const val ARG_POST_ID = "postID"
 
@@ -39,7 +40,13 @@ class PostFragment : Fragment() {
     ): View {
         val binding = FragmentPostBinding.inflate(inflater, container, false)
 
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val dependencyContainer = DependencyContainer.getInstance()
+
+        val viewModel: PostViewModel by viewModels(
+            ownerProducer = ::requireParentFragment,
+            factoryProducer = {
+                ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+            })
 
         val post = viewModel.data.value?.posts?.find { it.id == postID }
 
@@ -51,7 +58,7 @@ class PostFragment : Fragment() {
                 like.setOnClickListener {
                     //onInteractionListener.onLike(post)
                     like.isChecked = post.likedByMe
-                    if (AppAuth.isAuthorized) {
+                    if (DependencyContainer.getInstance().appAuth.isAuthorized) {
                         viewModel.likeById(post.id, post.likedByMe)
                     } else {
                         Snackbar.make(
@@ -74,7 +81,8 @@ class PostFragment : Fragment() {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, post.content)
                     }
-                    val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                    val chooser =
+                        Intent.createChooser(intent, getString(R.string.chooser_share_post))
                     startActivity(chooser)
                     viewModel.shareById(post.id)
 
@@ -83,7 +91,8 @@ class PostFragment : Fragment() {
                 attachmentImage.setOnClickListener {
                     binding.root.findNavController().navigate(
                         R.id.action_postFragment_to_attachmentFragment,
-                        bundleOf("attachmentUri" to post.attachment?.url))
+                        bundleOf("attachmentUri" to post.attachment?.url)
+                    )
                 }
 
                 if (!post.videoUrl.isNullOrBlank()) {
@@ -144,7 +153,7 @@ class PostFragment : Fragment() {
     private fun refresh(binding: FragmentPostBinding, viewModel: PostViewModel) {
         with(binding) {
             val state = viewModel.data.value ?: return
-            val modelState = viewModel.dataState.value ?:return
+            val modelState = viewModel.dataState.value ?: return
 
             errorGroup.isVisible = modelState.error
             progress.isVisible = modelState.loading

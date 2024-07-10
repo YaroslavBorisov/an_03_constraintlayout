@@ -15,16 +15,20 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.error.ApiError
 import java.io.File
 
-class AppAuth private constructor (context: Context) {
+class AppAuth(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val _state = MutableStateFlow<Token?>(null)
+
     val state: StateFlow<Token?> = _state.asStateFlow()
+
+    val isAuthorized
+        get() = _state.value?.token != null
 
 
     init {
@@ -60,7 +64,7 @@ class AppAuth private constructor (context: Context) {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val push = PushToken(token ?: Firebase.messaging.token.await())
-                ApiService.service.saveToken(push)
+                DependencyContainer.getInstance().apiService.saveToken(push)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -71,53 +75,53 @@ class AppAuth private constructor (context: Context) {
         private const val ID_KEY = "ID_KEY"
         private const val TOKEN_KEY = "TOKEN_KEY"
 
-        private var INSTANCE: AppAuth? = null
-
-        fun getInstance() = requireNotNull(INSTANCE) {
-            "You must init before"
-        }
-
-        fun init(context: Context) {
-            INSTANCE = AppAuth(context.applicationContext)
-
-        }
-
-        val isAuthorized
-            get() = getInstance()._state.value?.token != null
-
-        suspend fun signIn(login: String, pass: String) {
-            try {
-                val response = ApiService.service.updateUser(login, pass)
-                if (!response.isSuccessful) {
-                    throw ApiError(response.code())
-                }
-                val token = requireNotNull(response.body())
-                getInstance().setAuth(token.id, token.token)
-
-            } catch (e: Exception) {
-                throw e
-            }
-        }
-
-        suspend fun signUp(userName: String, login: String, pass: String, file: File?) {
-            try {
-                val response = file?.let {
-                    ApiService.service.registerUserWithPhoto(userName.toRequestBody("text/plain".toMediaType()),
-                        login.toRequestBody("text/plain".toMediaType()),
-                        pass.toRequestBody("text/plain".toMediaType()),
-                        MultipartBody.Part.createFormData("file", it.name, it.asRequestBody()))
-                } ?: ApiService.service.registerUser(login, pass, userName)
-
-                if (!response.isSuccessful) {
-                    throw ApiError(response.code())
-                }
-                val token = requireNotNull(response.body())
-                getInstance().setAuth(token.id, token.token)
-
-            } catch (e: Exception) {
-                throw e
-            }
-        }
+//        private var INSTANCE: AppAuth? = null
+//
+//        fun getInstance() = requireNotNull(INSTANCE) {
+//            "You must init before"
+//        }
+//
+//        fun init(context: Context) {
+//            INSTANCE = AppAuth(context.applicationContext)
+//
+//        }
 
     }
+
+    suspend fun signIn(login: String, pass: String) {
+        try {
+            val response = DependencyContainer.getInstance().apiService.updateUser(login, pass)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code())
+            }
+            val token = requireNotNull(response.body())
+            setAuth(token.id, token.token)
+
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    suspend fun signUp(userName: String, login: String, pass: String, file: File?) {
+        try {
+            val response = file?.let {
+                DependencyContainer.getInstance().apiService.registerUserWithPhoto(
+                    userName.toRequestBody("text/plain".toMediaType()),
+                    login.toRequestBody("text/plain".toMediaType()),
+                    pass.toRequestBody("text/plain".toMediaType()),
+                    MultipartBody.Part.createFormData("file", it.name, it.asRequestBody())
+                )
+            } ?: DependencyContainer.getInstance().apiService.registerUser(login, pass, userName)
+
+            if (!response.isSuccessful) {
+                throw ApiError(response.code())
+            }
+            val token = requireNotNull(response.body())
+            setAuth(token.id, token.token)
+
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
 }

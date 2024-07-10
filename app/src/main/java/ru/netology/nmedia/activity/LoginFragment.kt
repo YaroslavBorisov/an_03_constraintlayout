@@ -16,8 +16,10 @@ import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentLoginBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.LoginViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 class LoginFragment : Fragment() {
 
@@ -27,8 +29,15 @@ class LoginFragment : Fragment() {
     ): View {
 
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
-        val viewModel: LoginViewModel by viewModels()
-        val authViewModel: AuthViewModel by viewModels()
+
+        val dependencyContainer = DependencyContainer.getInstance()
+
+        val viewModel: LoginViewModel by viewModels( factoryProducer = {
+            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        })
+        val authViewModel: AuthViewModel by viewModels( factoryProducer = {
+            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        })
 
         val pickPhotoLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

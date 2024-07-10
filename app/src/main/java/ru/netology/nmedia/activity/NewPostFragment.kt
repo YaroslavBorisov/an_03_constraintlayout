@@ -21,9 +21,11 @@ import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 class NewPostFragment : Fragment() {
     companion object {
@@ -33,8 +35,13 @@ class NewPostFragment : Fragment() {
     private lateinit var binding: FragmentNewPostBinding
     private var isNewPost: Boolean = false
 
+    private val dependencyContainer = DependencyContainer.getInstance()
+
     private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
+        ownerProducer = ::requireParentFragment,
+        factoryProducer = {
+            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +78,7 @@ class NewPostFragment : Fragment() {
                             Snackbar.LENGTH_LONG
                         ).show()
                     }
+
                     Activity.RESULT_OK -> {
                         val uri: Uri? = it.data?.data
 
@@ -94,6 +102,7 @@ class NewPostFragment : Fragment() {
                         AndroidUtils.hideKeyboard(requireView())
                         true
                     }
+
                     else -> false
                 }
             }
@@ -115,7 +124,6 @@ class NewPostFragment : Fragment() {
                 .cameraOnly()
                 .createIntent(pickPhotoLauncher::launch)
         }
-
 
 
 //        binding.ok.setOnClickListener {

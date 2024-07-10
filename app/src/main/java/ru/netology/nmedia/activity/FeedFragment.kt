@@ -16,27 +16,32 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.adapter.onInteractionListener
-import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 class FeedFragment : Fragment() {
+    private val dependencyContainer = DependencyContainer.getInstance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment,
+        factoryProducer = {
+            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        }
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
 
         val adapter = PostsAdapter(object : onInteractionListener {
             override fun onLike(post: Post) {
-                if (AppAuth.isAuthorized) {
+                if (DependencyContainer.getInstance().appAuth.isAuthorized) {
                     viewModel.likeById(post.id, post.likedByMe)
                 } else {
                     Snackbar.make(
@@ -136,7 +141,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.add.setOnClickListener {
-            if (AppAuth.isAuthorized) {
+            if (DependencyContainer.getInstance().appAuth.isAuthorized) {
                 viewModel.clearEditedPost()
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
             } else {

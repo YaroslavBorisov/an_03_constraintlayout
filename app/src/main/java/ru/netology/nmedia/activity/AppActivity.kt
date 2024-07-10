@@ -23,10 +23,17 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
-import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import ru.netology.nmedia.viewmodel.ViewModelFactory
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
+    private val dependencyContainer = DependencyContainer.getInstance()
+    private val viewModel : AuthViewModel by viewModels(
+        factoryProducer = {
+            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
+        })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,8 +64,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         checkGoogleApiAvailability()
 
         requestNotificationsPermission()
-
-        val viewModel by viewModels<AuthViewModel>()
 
         var currentMenuProvider: MenuProvider? = null
 
@@ -154,7 +159,7 @@ class LogoutConfirmationDialogFragment : DialogFragment() {
         AlertDialog.Builder(requireContext())
             .setMessage(getString(R.string.logout_confirmation))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                AppAuth.getInstance().clearAuth()
+                DependencyContainer.getInstance().appAuth.clearAuth()
             }
             .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
             .create()
