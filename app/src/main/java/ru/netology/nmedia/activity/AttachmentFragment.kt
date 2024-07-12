@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.databinding.FragmentAttachmentBinding
 import ru.netology.nmedia.util.load
 
 private const val ARG_ATTACHMENT_URI = "attachmentUri"
 
+@AndroidEntryPoint
 class AttachmentFragment: Fragment() {
     private var uri: String? = null
 

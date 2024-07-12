@@ -21,18 +21,16 @@ import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
-import ru.netology.nmedia.di.DependencyContainer
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.AuthViewModel
-import ru.netology.nmedia.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
-    private val dependencyContainer = DependencyContainer.getInstance()
-    private val viewModel : AuthViewModel by viewModels(
-        factoryProducer = {
-            ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
-        })
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +51,8 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
             }
 
             intent.removeExtra(Intent.EXTRA_TEXT)
-            findNavController(R.id.nav_host_fragment)
-                .navigate(R.id.action_feedFragment_to_newPostFragment,
+            findNavController(R.id.nav_host_fragment).navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
                     Bundle().apply {
                         textArg = text
                     })
@@ -85,11 +83,12 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                     when (menuItem.itemId) {
                         R.id.sign_in, R.id.sign_up -> {
                             //AppAuth.getInstance().setAuth(5, "x-token")
-                            findNavController(R.id.nav_host_fragment)
-                                .navigate(R.id.action_global_loginFragment, Bundle().apply {
-                                    textArg =
-                                        if (menuItem.itemId == R.id.sign_up) "actionSignUp" else null
-                                })
+                            findNavController(R.id.nav_host_fragment).navigate(
+                                    R.id.action_global_loginFragment,
+                                    Bundle().apply {
+                                        textArg =
+                                            if (menuItem.itemId == R.id.sign_up) "actionSignUp" else null
+                                    })
                             true
                         }
 
@@ -97,8 +96,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                             val logoutConfirmationDialogFragment =
                                 LogoutConfirmationDialogFragment()
                             logoutConfirmationDialogFragment.show(
-                                supportFragmentManager,
-                                LogoutConfirmationDialogFragment.TAG
+                                supportFragmentManager, LogoutConfirmationDialogFragment.TAG
                             )
                             true
                         }
@@ -154,15 +152,16 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     }
 }
 
+@AndroidEntryPoint
 class LogoutConfirmationDialogFragment : DialogFragment() {
+    @Inject
+    lateinit var appAuth: AppAuth
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        AlertDialog.Builder(requireContext())
-            .setMessage(getString(R.string.logout_confirmation))
+        AlertDialog.Builder(requireContext()).setMessage(getString(R.string.logout_confirmation))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                DependencyContainer.getInstance().appAuth.clearAuth()
-            }
-            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
-            .create()
+                appAuth.clearAuth()
+            }.setNegativeButton(getString(R.string.cancel)) { _, _ -> }.create()
 
     companion object {
         const val TAG = "LogoutConfirmationDialog"

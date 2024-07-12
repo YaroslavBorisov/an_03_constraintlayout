@@ -26,12 +26,13 @@ import ru.netology.nmedia.error.UnknownException
 import java.io.File
 import java.io.IOException
 import java.util.Collections
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-class PostRepositoryImpl(
+class PostRepositoryImpl @Inject constructor(
     private val dao: PostDao,
     private val apiService: ApiService
-    ) : PostRepository {
+) : PostRepository {
 
     private val pendingRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())
     private val executedRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())

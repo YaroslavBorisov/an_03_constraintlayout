@@ -4,6 +4,11 @@ import android.content.Context
 import androidx.core.content.edit
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,13 +20,19 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.di.DependencyContainer
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.error.ApiError
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth(context: Context) {
+@Singleton
+class AppAuth @Inject constructor(
+    @ApplicationContext
+    private val context: Context) {
+
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val _state = MutableStateFlow<Token?>(null)
 
@@ -60,11 +71,21 @@ class AppAuth(context: Context) {
         sendPushToken()
     }
 
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface AppAuthEntryPoint {
+        fun getApiService(): ApiService
+
+    }
+
+    private val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+
     fun sendPushToken(token: String? = null) {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val push = PushToken(token ?: Firebase.messaging.token.await())
-                DependencyContainer.getInstance().apiService.saveToken(push)
+                //val entryPoint = EntryPointAccessors.fromApplication(context, AppAuthEntryPoint::class.java)
+                entryPoint.getApiService().saveToken(push)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -90,7 +111,9 @@ class AppAuth(context: Context) {
 
     suspend fun signIn(login: String, pass: String) {
         try {
-            val response = DependencyContainer.getInstance().apiService.updateUser(login, pass)
+
+
+            val response = entryPoint.getApiService().updateUser(login, pass)
             if (!response.isSuccessful) {
                 throw ApiError(response.code())
             }
@@ -105,13 +128,13 @@ class AppAuth(context: Context) {
     suspend fun signUp(userName: String, login: String, pass: String, file: File?) {
         try {
             val response = file?.let {
-                DependencyContainer.getInstance().apiService.registerUserWithPhoto(
+                entryPoint.getApiService().registerUserWithPhoto(
                     userName.toRequestBody("text/plain".toMediaType()),
                     login.toRequestBody("text/plain".toMediaType()),
                     pass.toRequestBody("text/plain".toMediaType()),
                     MultipartBody.Part.createFormData("file", it.name, it.asRequestBody())
                 )
-            } ?: DependencyContainer.getInstance().apiService.registerUser(login, pass, userName)
+            } ?: entryPoint.getApiService().registerUser(login, pass, userName)
 
             if (!response.isSuccessful) {
                 throw ApiError(response.code())

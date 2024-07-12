@@ -9,22 +9,27 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentPostBinding
-import ru.netology.nmedia.di.DependencyContainer
 import ru.netology.nmedia.util.AndroidUtils.format
 import ru.netology.nmedia.util.load
 import ru.netology.nmedia.viewmodel.PostViewModel
-import ru.netology.nmedia.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 private const val ARG_POST_ID = "postID"
 
+@AndroidEntryPoint
 class PostFragment : Fragment() {
+    @Inject
+    lateinit var appAuth: AppAuth
+
     private var postID: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,13 +45,7 @@ class PostFragment : Fragment() {
     ): View {
         val binding = FragmentPostBinding.inflate(inflater, container, false)
 
-        val dependencyContainer = DependencyContainer.getInstance()
-
-        val viewModel: PostViewModel by viewModels(
-            ownerProducer = ::requireParentFragment,
-            factoryProducer = {
-                ViewModelFactory(dependencyContainer.repository, dependencyContainer.appAuth)
-            })
+        val viewModel: PostViewModel by activityViewModels()
 
         val post = viewModel.data.value?.posts?.find { it.id == postID }
 
@@ -58,7 +57,7 @@ class PostFragment : Fragment() {
                 like.setOnClickListener {
                     //onInteractionListener.onLike(post)
                     like.isChecked = post.likedByMe
-                    if (DependencyContainer.getInstance().appAuth.isAuthorized) {
+                    if (appAuth.isAuthorized) {
                         viewModel.likeById(post.id, post.likedByMe)
                     } else {
                         Snackbar.make(
