@@ -13,12 +13,14 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentLoginBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.LoginViewModel
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     override fun onCreateView(
@@ -27,6 +29,7 @@ class LoginFragment : Fragment() {
     ): View {
 
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
+
         val viewModel: LoginViewModel by viewModels()
         val authViewModel: AuthViewModel by viewModels()
 

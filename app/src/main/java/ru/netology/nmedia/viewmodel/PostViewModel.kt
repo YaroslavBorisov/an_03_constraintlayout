@@ -1,22 +1,19 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
@@ -26,9 +23,9 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import javax.inject.Inject
 
 val empty = Post(
     id = 0,
@@ -41,18 +38,23 @@ val empty = Post(
 
 private val nophoto = PhotoModel()
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PostRepository = PostRepositoryImpl(AppDb.getInstance(application).postDao)
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    appAuth: AppAuth,
+) : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _data = AppAuth.getInstance().state.flatMapLatest { auth ->
+    private val _data = appAuth.state.flatMapLatest { auth ->
         repository.data
-            .map {posts ->
+            .map { posts ->
                 FeedModel(posts.map {
                     it.copy(
-                        ownedByMe = it.authorId == auth?.id)
+                        ownedByMe = it.authorId == auth?.id
+                    )
 
-                }) }
+                })
+            }
     }
         .asLiveData(Dispatchers.Default)
 
@@ -127,10 +129,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun showToast() {
-        Toast.makeText(getApplication<Application>().applicationContext,
-            R.string.error_updating, Toast.LENGTH_LONG).show()
-    }
+//    private fun showToast() {
+//        Toast.makeText(getApplication<Application>().applicationContext,
+//            R.string.error_updating, Toast.LENGTH_LONG).show()
+//    }
 
     fun shareById(id: Long) = viewModelScope.launch {
         repository.shareById(id)
@@ -159,7 +161,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             _postCreated.value = Unit
             try {
-                when(_photo.value) {
+                when (_photo.value) {
                     nophoto -> repository.save(it.copy(content = content))
                     else -> _photo.value?.file?.let { file ->
                         repository.saveWithAttachment(it.copy(content = content), file)
@@ -186,15 +188,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveDraft(content)
     }
 
-    fun getDraft() =  viewModelScope.launch {
+    fun getDraft() = viewModelScope.launch {
         repository.getDraft()
     }
 
-    fun deleteDraft() =  viewModelScope.launch {
+    fun deleteDraft() = viewModelScope.launch {
         repository.deleteDraft()
     }
 
-    fun showHiddenPosts() =  viewModelScope.launch {
+    fun showHiddenPosts() = viewModelScope.launch {
         repository.showHiddenPosts()
     }
 

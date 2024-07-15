@@ -26,9 +26,13 @@ import ru.netology.nmedia.error.UnknownException
 import java.io.File
 import java.io.IOException
 import java.util.Collections
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
+class PostRepositoryImpl @Inject constructor(
+    private val dao: PostDao,
+    private val apiService: ApiService
+) : PostRepository {
 
     private val pendingRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())
     private val executedRequests = Collections.synchronizedList(mutableListOf<PendingRequest>())
@@ -43,7 +47,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         try {
             executePendingRequests()
 
-            val response = ApiService.service.getAll()
+            val response = apiService.getAll()
             if (!response.isSuccessful) throw ApiError(response.code())
 
             val posts = response.body() ?: throw UnknownException
@@ -69,21 +73,21 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                         try {
                             when (request.type) {
                                 PendingRequestType.LIKE -> {
-                                    ApiService.service.likeById(request.id)
+                                    apiService.likeById(request.id)
                                     synchronized(executedRequests) {
                                         executedRequests.add(request)
                                     }
                                 }
 
                                 PendingRequestType.DISLIKE -> {
-                                    ApiService.service.dislikeById(request.id)
+                                    apiService.dislikeById(request.id)
                                     synchronized(executedRequests) {
                                         executedRequests.add(request)
                                     }
                                 }
 
                                 PendingRequestType.DELETE -> {
-                                    ApiService.service.deleteById(request.id)
+                                    apiService.deleteById(request.id)
                                     synchronized(executedRequests) {
                                         executedRequests.add(request)
                                     }
@@ -127,7 +131,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             throw UnknownException
         }
 
-//            return ApiService.service.run {
+//            return apiService.service.run {
 //                if (likedByMe) {
 //                    dislikeById(id)
 //                } else {
@@ -143,7 +147,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 pendingRequests.add(PendingRequest(PendingRequestType.DELETE, id))
             }
             executePendingRequests()
-            //ApiService.service.deleteById(id)
+            //apiService.service.deleteById(id)
         } catch (e: IOException) {
             throw NetworkException
         } catch (e: Exception) {
@@ -153,7 +157,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun save(post: Post) {
         try {
-            val response = ApiService.service.save(post)
+            val response = apiService.save(post)
 
             if (!response.isSuccessful) {
                 throw ApiError(response.code())
@@ -176,7 +180,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     private suspend fun upload(file: File): Media {
         try {
             val part = MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
-            val response = ApiService.service.upload(part)
+            val response = apiService.upload(part)
             if (!response.isSuccessful) {
                 throw ApiError(response.code())
             }
@@ -199,7 +203,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         while (true) {
             delay(10.seconds)
             try {
-                val response = ApiService.service.getNewer(newerId)
+                val response = apiService.getNewer(newerId)
                 val posts = response.body() ?: continue
                 dao.insert(posts.toEntity(false))
                 //emit(posts.size)
