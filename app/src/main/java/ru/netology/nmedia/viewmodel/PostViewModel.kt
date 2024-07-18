@@ -4,13 +4,15 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
@@ -19,7 +21,6 @@ import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
-import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
@@ -38,28 +39,38 @@ val empty = Post(
 
 private val nophoto = PhotoModel()
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     appAuth: AppAuth,
 ) : ViewModel() {
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _data = appAuth.state.flatMapLatest { auth ->
+
+//    private val _data = appAuth.state.flatMapLatest { auth ->
+//        repository.data
+//            .map { posts ->
+//                FeedModel(posts.map {
+//                    it.copy(
+//                        ownedByMe = it.authorId == auth?.id
+//                    )
+//
+//                })
+//            }
+//    }.asLiveData(Dispatchers.Default)
+//val data: LiveData<FeedModel>
+//    get() = _data
+
+    val data: Flow<PagingData<Post>> = appAuth.state.flatMapLatest { auth ->
         repository.data
             .map { posts ->
-                FeedModel(posts.map {
-                    it.copy(
-                        ownedByMe = it.authorId == auth?.id
-                    )
-
-                })
+                posts.map {
+                    it.copy(ownedByMe = it.authorId == auth?.id)
+                }
             }
-    }
-        .asLiveData(Dispatchers.Default)
+    }.flowOn(Dispatchers.Default)
 
-    val data: LiveData<FeedModel>
-        get() = _data
+
 
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
@@ -69,12 +80,13 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel>
         get() = _photo
 
-    val newerCount: LiveData<Int> = data.switchMap {
-        val newerId = it.posts.firstOrNull()?.id ?: 0L
 
-        repository.getNewerCount(newerId)
-            .asLiveData(Dispatchers.Default)
-    }
+//    val newerCount: LiveData<Int> = data.switchMap {
+//        val newerId = it.posts.firstOrNull()?.id ?: 0L
+//
+//        repository.getNewerCount(newerId)
+//            .asLiveData(Dispatchers.Default)
+//    }
 
 
     private val _postCreated = SingleLiveEvent<Unit>()
@@ -111,16 +123,6 @@ class PostViewModel @Inject constructor(
     fun refreshPosts() = viewModelScope.launch { load(true) }
 
     fun likeById(id: Long, likedByMe: Boolean) = viewModelScope.launch {
-//        val oldPosts = _data.value?.posts.orEmpty()
-//        _data.value =
-//            _data.value?.copy(posts = oldPosts.map {
-//                if (it.id == id) it.copy(
-//                    likedByMe = !it.likedByMe,
-//                    likes = it.likes + if (it.likedByMe) -1 else 1
-//                )
-//                else it
-//            })
-
 
         try {
             repository.likeById(id, likedByMe)
@@ -139,9 +141,6 @@ class PostViewModel @Inject constructor(
     }
 
     fun removeById(id: Long) = viewModelScope.launch {
-//        val oldPosts = _data.value?.posts.orEmpty()
-//        _data.value =
-//            _data.value?.copy(posts = oldPosts.filter { it.id != id })
         try {
             repository.removeById(id)
         } catch (e: Exception) {
@@ -150,14 +149,6 @@ class PostViewModel @Inject constructor(
     }
 
     fun updateSave(content: String) = viewModelScope.launch {
-//        edited.value?.let {
-//            if (content != it.content) {
-//                repository.save(
-//                    it.copy(content = content))
-//                _postCreated.value = Unit
-//            }
-//            edited.value = empty
-//        }
         edited.value?.let {
             _postCreated.value = Unit
             try {

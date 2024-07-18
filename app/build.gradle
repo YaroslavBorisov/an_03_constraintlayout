@@ -67,6 +67,7 @@ dependencies {
     def coroutines_version = "1.8.0"
     def imagepicker_version = "2.1"
     def hilt_vesrion = "2.51.1"
+    def paging_version = "3.3.0"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -142,6 +143,8 @@ dependencies {
 
     implementation "com.google.dagger:hilt-android:$hilt_vesrion"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_vesrion"
+
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
